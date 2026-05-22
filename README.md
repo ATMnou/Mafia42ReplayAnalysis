@@ -1,4 +1,4 @@
-# MafiaReplayAI
+# Mafia42ReplayAnalysis
 
 마피아42 리플레이 URL을 입력하면 채팅 로그와 유저 정보를 수집하고, OpenAI 호환 API를 이용해 한국어로 게임 흐름을 분석하는 Node.js 도구입니다.
 
