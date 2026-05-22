@@ -178,7 +178,7 @@ if (result.success) {
 
   console.log("로그 텍스트를 성공적으로 생성했습니다. 분석을 시작합니다...");
 
-  // 모델 수정시 경고: Context가 매우 길기 때문에 비용을 고려해야 하지만, 파라미터가
+  // 모델 수정시 경고: Context가 매우 길기 때문에 비용을 고려해야 하지만, 파라미터가 너무 낮은 모델은 오히려 분석 품질이 떨어질 수 있습니다. 모델 선택에 신중을 기하세요.
 
   const response = await client.chat.completions.create({
     model: "google/gemma-4-26b-a4b-it",
