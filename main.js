@@ -1,0 +1,203 @@
+import axios from "axios";
+import * as cheerio from "cheerio";
+import { OpenAI } from "openai/client.js";
+import fs from "fs";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+// 설정
+const mafiaUrl = "https://mafia42.com/history/kr/b915538b97c1c82bea24b3dac91a6a72";
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+});
+
+const contextFilePath = "./context.txt";
+let contextText = fs.readFileSync(contextFilePath, "utf-8");
+
+function normalizeText(text) {
+  return String(text ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function detectChatChannel(className) {
+  const classes = String(className ?? "")
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const megaphoneToken = classes.find((token) => token.toUpperCase().includes("MEGAPHONE"));
+  if (megaphoneToken) {
+    return "MEGAPHONE";
+  }
+
+  const channel = classes.find((token) => token.toUpperCase().endsWith("CHAT") && token.toLowerCase() !== "chat-bubble");
+
+  return channel ? channel.toUpperCase() : "CHAT";
+}
+
+function extractJobFromIconSrc(iconSrc) {
+  const src = String(iconSrc ?? "");
+  const match = src.match(/jobthumb_([^./?]+)\.(?:png|jpg|jpeg|webp|gif|svg)/i);
+  return match ? match[1].toLowerCase() : null;
+}
+
+function extractUsersFromUserTable($) {
+  const users = [];
+
+  $("#user-table-container #user-table .item").each((index, itemEl) => {
+    const $item = $(itemEl);
+    const nickname = normalizeText($item.find(".nick-name").first().text()) || null;
+    const jobIconSrc = $item.find("img.job-icon-img").first().attr("src");
+    const job = extractJobFromIconSrc(jobIconSrc);
+
+    users.push({
+      number: index + 1,
+      nickname,
+      job,
+    });
+  });
+
+  return users;
+}
+
+function extractReplayLogs($) {
+  const logs = [];
+  const chatLogs = [];
+  const systemLogs = [];
+  const users = extractUsersFromUserTable($);
+
+  const timelineItems = $("section.table").first().children(".system, .chat-data-container");
+
+  timelineItems.each((_, element) => {
+    const $item = $(element);
+
+    if ($item.hasClass("system")) {
+      const message = normalizeText($item.find("b").first().text() || $item.text());
+      if (!message) return;
+
+      const entry = {
+        type: "system",
+        message,
+      };
+
+      logs.push(entry);
+      systemLogs.push(entry);
+      return;
+    }
+
+    const nickname = normalizeText($item.find(".nick-name").first().text()) || null;
+    const bubbles = $item.find(".chat-bubble");
+
+    bubbles.each((__, bubbleEl) => {
+      const $bubble = $(bubbleEl);
+      const message = normalizeText($bubble.text());
+      if (!message) return;
+
+      const entry = {
+        type: "chat",
+        channel: detectChatChannel($bubble.attr("class")),
+        nickname,
+        message,
+      };
+
+      logs.push(entry);
+      chatLogs.push(entry);
+    });
+  });
+
+  return { logs, chatLogs, systemLogs, users };
+}
+
+async function fetchMafiaChatHistory(shareUrl) {
+  try {
+    const urlObj = new URL(shareUrl);
+    const pathParts = urlObj.pathname.split("/").filter(Boolean);
+
+    const lang = pathParts[1];
+    const roomId = pathParts[2];
+
+    if (!roomId || !lang) {
+      throw new Error("올바른 마피아42 리플레이 URL 형식이 아닙니다.");
+    }
+
+    let targetAwsUrl = "";
+    if (lang === "kr") {
+      targetAwsUrl = `https://o2zj8uijbj.execute-api.ap-northeast-2.amazonaws.com/GetMafiaChat?id=${roomId}&lang=${lang}`;
+    } else if (lang === "en") {
+      targetAwsUrl = `https://lwlexm3imq2lvqcst4kjr6322u0acknn.lambda-url.us-east-1.on.aws/?id=${roomId}&lang=${lang}`;
+    } else {
+      throw new Error(`지원하지 않거나 처리가 필요한 언어팩입니다: ${lang}`);
+    }
+
+    const response = await axios.get(targetAwsUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      },
+    });
+
+    const realHtmlBody = response.data;
+
+    const $ = cheerio.load(realHtmlBody);
+    const { logs, chatLogs, systemLogs, users } = extractReplayLogs($);
+
+    return {
+      success: true,
+      logs,
+      users,
+    };
+  } catch (error) {
+    console.error("크롤링 중 에러가 발생했습니다:", error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+const result = await fetchMafiaChatHistory(mafiaUrl);
+
+let logtext = "";
+if (result.success) {
+  console.log("크롤링 성공!");
+  result.logs.forEach((entry) => {
+    if (entry.type === "system") {
+      logtext += `[SYSTEM] ${entry.message}\n`;
+    } else if (entry.type === "chat") {
+      logtext += `[${entry.channel}] [${entry.nickname}]: ${entry.message}\n`;
+    } else {
+      logtext += `[UNKNOWN] ${entry.message}\n`;
+    }
+  });
+
+  if (Array.isArray(result.users) && result.users.length > 0) {
+    logtext += "\n[USER_TABLE]\n";
+    result.users.forEach((user) => {
+      logtext += `#${user.number} [${user.nickname}] job=${user.job ?? "unknown"}\n`;
+    });
+  }
+
+  console.log("로그 텍스트를 성공적으로 생성했습니다. 분석을 시작합니다...");
+
+  // 모델 수정시 경고: Context가 매우 길기 때문에 비용을 고려해야 하지만, 파라미터가
+
+  const response = await client.chat.completions.create({
+    model: "google/gemma-4-26b-a4b-it",
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: `You are an expert analyst for Mafia game replays. Analyze the provided chat logs and user information from a Mafia game replay. Identify key events, player interactions, and potential strategies used by the players. Summarize the overall flow of the game, including any notable moments or turning points. Provide insights into player behavior and possible motivations based on the chat content and user data. Keep your analysis concise, factual, and focused on the gameplay aspects without speculation. Output a well-structured summary that captures the essence of the game replay.
+            Here is the context of the game replay:\n\n${contextText}
+            Here are the chat logs and user information:\n\n${logtext}
+            Respond with Korean language. Do not include any meta phrases or speculative language in your analysis.`,
+          },
+        ],
+      },
+    ],
+  });
+
+  console.log("AI 분석 결과:");
+  console.log(response.choices[0].message.content);
+}
