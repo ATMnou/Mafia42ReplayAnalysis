@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // 설정
-const mafiaUrl = "https://mafia42.com/history/kr/b915538b97c1c82bea24b3dac91a6a72";
+const mafiaUrl = "https://mafia42.com/history/kr/460ac42a5f3a6251330bcfd6baa65b3b";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -63,11 +63,17 @@ function extractUsersFromUserTable($) {
   return users;
 }
 
+function extractWinningTeam($) {
+  const winnerText = normalizeText($(".team-container.display-flex.center.game-end-type").first().text());
+  return winnerText || null;
+}
+
 function extractReplayLogs($) {
   const logs = [];
   const chatLogs = [];
   const systemLogs = [];
   const users = extractUsersFromUserTable($);
+  const winningTeam = extractWinningTeam($);
 
   const timelineItems = $("section.table").first().children(".system, .chat-data-container");
 
@@ -108,7 +114,7 @@ function extractReplayLogs($) {
     });
   });
 
-  return { logs, chatLogs, systemLogs, users };
+  return { logs, chatLogs, systemLogs, users, winningTeam };
 }
 
 async function fetchMafiaChatHistory(shareUrl) {
@@ -141,12 +147,13 @@ async function fetchMafiaChatHistory(shareUrl) {
     const realHtmlBody = response.data;
 
     const $ = cheerio.load(realHtmlBody);
-    const { logs, chatLogs, systemLogs, users } = extractReplayLogs($);
+    const { logs, chatLogs, systemLogs, users, winningTeam } = extractReplayLogs($);
 
     return {
       success: true,
       logs,
       users,
+      winningTeam,
     };
   } catch (error) {
     console.error("크롤링 중 에러가 발생했습니다:", error.message);
@@ -159,6 +166,11 @@ const result = await fetchMafiaChatHistory(mafiaUrl);
 let logtext = "";
 if (result.success) {
   console.log("크롤링 성공!");
+
+  if (result.winningTeam) {
+    logtext += `[WINNING_TEAM] ${result.winningTeam}\n\n`;
+  }
+
   result.logs.forEach((entry) => {
     if (entry.type === "system") {
       logtext += `[SYSTEM] ${entry.message}\n`;
