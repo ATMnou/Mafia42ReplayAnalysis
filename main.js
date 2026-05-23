@@ -14,8 +14,8 @@ const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
 });
 
-const contextFilePath = "./context.txt";
-let contextText = fs.readFileSync(contextFilePath, "utf-8");
+// const contextFilePath = "./context.txt"; // context_cult: 교주 모드 지원
+// let contextText = fs.readFileSync(contextFilePath, "utf-8");
 
 function normalizeText(text) {
   return String(text ?? "")
@@ -164,6 +164,7 @@ async function fetchMafiaChatHistory(shareUrl) {
 const result = await fetchMafiaChatHistory(mafiaUrl);
 
 let logtext = "";
+let cultmode = false;
 if (result.success) {
   console.log("크롤링 성공!");
 
@@ -185,12 +186,25 @@ if (result.success) {
     logtext += "\n[USER_TABLE]\n";
     result.users.forEach((user) => {
       logtext += `#${user.number} [${user.nickname}] job=${user.job ?? "unknown"}\n`;
+      if (user.job === "cultleader") {
+        cultmode = true;
+      }
     });
   }
 
   console.log("로그 텍스트를 성공적으로 생성했습니다. 분석을 시작합니다...");
 
   // 모델 수정시 경고: Context가 매우 길기 때문에 비용을 고려해야 하지만, 파라미터가 너무 낮은 모델은 오히려 분석 품질이 떨어질 수 있습니다. 모델 선택에 신중을 기하세요.
+
+  let contextText;
+
+  if (cultmode) {
+    const cultContextFilePath = "./context_cult.txt"; // 교주 모드 지원을 위한 확장된 컨텍스트 파일 (15,528자)
+    contextText = fs.readFileSync(cultContextFilePath, "utf-8");
+  } else {
+    const contextFilePath = "./context.txt"; // 8인(랭크 게임) 최적화 컨텍스트 파일 (14,351자)
+    contextText = fs.readFileSync(contextFilePath, "utf-8");
+  }
 
   const response = await client.chat.completions.create({
     model: "google/gemma-4-26b-a4b-it",
