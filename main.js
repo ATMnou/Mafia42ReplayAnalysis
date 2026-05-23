@@ -14,9 +14,6 @@ const client = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
 });
 
-// const contextFilePath = "./context.txt"; // context_cult: 교주 모드 지원
-// let contextText = fs.readFileSync(contextFilePath, "utf-8");
-
 function normalizeText(text) {
   return String(text ?? "")
     .replace(/\s+/g, " ")
@@ -196,7 +193,7 @@ if (result.success) {
 
   // 모델 수정시 경고: Context가 매우 길기 때문에 비용을 고려해야 하지만, 파라미터가 너무 낮은 모델은 오히려 분석 품질이 떨어질 수 있습니다. 모델 선택에 신중을 기하세요.
 
-  let contextText;
+  let contextText; // 컨텍스트 텍스트는 폴더에 포함됨
 
   if (cultmode) {
     const cultContextFilePath = "./context_cult.txt"; // 교주 모드 지원을 위한 확장된 컨텍스트 파일 (15,528자)
