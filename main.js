@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // 설정
-const mafiaUrl = "https://mafia42.com/history/kr/460ac42a5f3a6251330bcfd6baa65b3b"; // readline 귀찮음
+const mafiaUrl = "https://mafia42.com/history/kr/d8b443c3acb622e8af7c5e146a92ff50"; // readline 귀찮음
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
