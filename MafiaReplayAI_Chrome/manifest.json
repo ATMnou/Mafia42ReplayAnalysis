@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Mafia42 Analyzer",
+  "name": "마피아42 리플레이 분석기",
   "description": "AI를 이용하여 마피아42의 리플레이를 분석합니다.",
   "version": "1.0",
   "icons": {
