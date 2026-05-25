@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mafia42 Analyzer — 설정</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      /* ── 변수 ── */
+      :root {
+        --bg: #0e0f14;
+        --surface: #161820;
+        --surface2: #1c1e28;
+        --border: #2a2d3e;
+        --border2: #363a52;
+        --accent: #c8a96e;
+        --accent-dim: #8a6f3e;
+        --accent2: #7b5ea7;
+        --text: #d6d8e0;
+        --muted: #6b6f82;
+        --success: #4caf82;
+        --danger: #e05c5c;
+        --radius: 10px;
+        --font: "Noto Sans KR", sans-serif;
+        --mono: "JetBrains Mono", monospace;
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        font-size: 14px;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px 20px 64px;
+      }
+
+      /* ── 레이아웃 ── */
+      .page {
+        width: 100%;
+        max-width: 520px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      /* ── 헤더 ── */
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border);
+      }
+      .header-icon {
+        width: 44px;
+        height: 44px;
+        background: rgba(200, 169, 110, 0.1);
+        border: 1px solid rgba(200, 169, 110, 0.25);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .header-icon svg {
+        width: 22px;
+        height: 22px;
+        color: var(--accent);
+      }
+      .header-text h1 {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 0.03em;
+      }
+      .header-text p {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      /* ── 카드 ── */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      .card-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface2);
+      }
+      .card-header svg {
+        width: 15px;
+        height: 15px;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+      .card-header span {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .card-body {
+        padding: 20px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* ── 폼 필드 ── */
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      label {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text);
+        letter-spacing: 0.02em;
+      }
+      .label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .label-link {
+        font-size: 11px;
+        color: var(--accent2);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: color 0.2s var(--ease);
+      }
+      .label-link:hover {
+        color: #a07ed0;
+      }
+      .label-link svg {
+        width: 11px;
+        height: 11px;
+      }
+
+      /* ── 인풋 래퍼 ── */
+      .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+      .input-wrap input {
+        width: 100%;
+        padding: 10px 44px 10px 14px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.05em;
+        outline: none;
+        transition:
+          border-color 0.2s var(--ease),
+          box-shadow 0.2s var(--ease);
+      }
+      .input-wrap input::placeholder {
+        color: var(--muted);
+        font-family: var(--font);
+        font-size: 12px;
+        letter-spacing: 0;
+      }
+      .input-wrap input:focus {
+        border-color: var(--accent-dim);
+        box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.1);
+      }
+      .input-wrap input.error {
+        border-color: var(--danger);
+        box-shadow: 0 0 0 3px rgba(224, 92, 92, 0.1);
+      }
+      .input-wrap input.valid {
+        border-color: rgba(76, 175, 130, 0.5);
+        box-shadow: 0 0 0 3px rgba(76, 175, 130, 0.08);
+      }
+
+      /* 마스크 토글 버튼 */
+      .toggle-mask {
+        position: absolute;
+        right: 12px;
+        width: 20px;
+        height: 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: color 0.2s var(--ease);
+      }
+      .toggle-mask:hover {
+        color: var(--text);
+      }
+      .toggle-mask svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      /* ── 도움말 텍스트 ── */
+      .help-text {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+      .help-text a {
+        color: var(--accent2);
+        text-decoration: none;
+      }
+      .help-text a:hover {
+        text-decoration: underline;
+      }
+
+      /* ── 모델 선택 ── */
+      .model-select {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%236b6f82' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        transition: border-color 0.2s var(--ease);
+      }
+      .model-select:focus {
+        border-color: var(--accent-dim);
+        box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.1);
+      }
+      .model-select option {
+        background: var(--surface);
+      }
+
+      /* ── 저장 버튼 ── */
+      .btn-save {
+        width: 100%;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, var(--accent) 0%, #b8973a 100%);
+        color: #0e0f14;
+        font-family: var(--font);
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        letter-spacing: 0.03em;
+        transition:
+          opacity 0.2s var(--ease),
+          transform 0.15s var(--ease);
+      }
+      .btn-save:hover {
+        opacity: 0.88;
+        transform: translateY(-1px);
+      }
+      .btn-save:active {
+        transform: scale(0.98);
+      }
+      .btn-save:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-save svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* ── 토스트 알림 ── */
+      #toast {
+        position: fixed;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%) translateY(16px);
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+        pointer-events: none;
+        transition:
+          opacity 0.25s var(--ease),
+          transform 0.25s var(--ease);
+        white-space: nowrap;
+      }
+      #toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      #toast.success {
+        background: rgba(76, 175, 130, 0.15);
+        border: 1px solid rgba(76, 175, 130, 0.35);
+        color: var(--success);
+      }
+      #toast.error {
+        background: rgba(224, 92, 92, 0.12);
+        border: 1px solid rgba(224, 92, 92, 0.3);
+        color: var(--danger);
+      }
+      #toast svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+      }
+
+      /* ── 현재 저장된 키 미리보기 ── */
+      .key-preview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: rgba(76, 175, 130, 0.06);
+        border: 1px solid rgba(76, 175, 130, 0.18);
+        border-radius: 6px;
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--success);
+      }
+      .key-preview-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .key-preview-label svg {
+        width: 13px;
+        height: 13px;
+      }
+      .key-preview-clear {
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 11px;
+        font-family: var(--font);
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition:
+          color 0.2s,
+          background 0.2s;
+      }
+      .key-preview-clear:hover {
+        color: var(--danger);
+        background: rgba(224, 92, 92, 0.08);
+      }
+
+      /* ── 구분선 ── */
+      .divider {
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── 정보 박스 ── */
+      .info-box {
+        display: flex;
+        gap: 10px;
+        padding: 12px 14px;
+        background: rgba(123, 94, 167, 0.07);
+        border: 1px solid rgba(123, 94, 167, 0.2);
+        border-radius: 8px;
+      }
+      .info-box svg {
+        width: 15px;
+        height: 15px;
+        color: var(--accent2);
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .info-box p {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .info-box p strong {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      /* ── 푸터 ── */
+      .footer {
+        font-size: 11px;
+        color: var(--muted);
+        text-align: center;
+        line-height: 1.7;
+      }
+      .footer a {
+        color: var(--muted);
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- 헤더 -->
+      <div class="header">
+        <div class="header-icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M11 2L13.5 8H20L14.5 11.8L16.5 18L11 14.2L5.5 18L7.5 11.8L2 8H8.5L11 2Z" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="header-text">
+          <h1>Mafia42 Analyzer</h1>
+          <p>확장 프로그램 설정</p>
+        </div>
+      </div>
+
+      <!-- API 키 카드 -->
+      <div class="card">
+        <div class="card-header">
+          <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="6" cy="9" r="4" />
+            <path d="M9.5 5.5L13 2M11 2h2v2" />
+          </svg>
+          <span>OpenRouter API 키</span>
+        </div>
+        <div class="card-body">
+          <!-- 저장된 키 미리보기 (키 있을 때만 표시) -->
+          <div id="key-preview-wrap" style="display: none">
+            <div class="key-preview">
+              <span class="key-preview-label">
+                <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <path d="M2 7l3 3 6-6" />
+                </svg>
+                <span id="key-preview-text">sk-or-••••••••••••••••</span>
+              </span>
+              <button class="key-preview-clear" id="clear-key-btn">삭제</button>
+            </div>
+          </div>
+
+          <!-- 키 입력 필드 -->
+          <div class="field" id="key-field">
+            <div class="label-row">
+              <label for="api-key-input">API 키</label>
+              <a href="https://openrouter.ai/keys" target="_blank" class="label-link">
+                키 발급받기
+                <svg viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <path d="M2 9L9 2M5 2h4v4" />
+                </svg>
+              </a>
+            </div>
+            <div class="input-wrap">
+              <input type="password" id="api-key-input" placeholder="sk-or-v1-..." autocomplete="off" spellcheck="false" />
+              <button class="toggle-mask" id="toggle-mask-btn" title="표시/숨기기" type="button">
+                <svg id="eye-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
+                  <circle cx="8" cy="8" r="2" />
+                </svg>
+              </button>
+            </div>
+            <p class="help-text">
+              키는 <strong style="color: var(--text)">chrome.storage.sync</strong>에 저장되며, 브라우저 외부로 전송되지 않습니다. API 요금은 <a href="https://openrouter.ai/docs#pricing" target="_blank">OpenRouter 정책</a>을 따릅니다.
+            </p>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- 모델 선택 -->
+          <div class="field">
+            <label for="model-select">분석 모델</label>
+            <select class="model-select" id="model-select">
+              <option value="google/gemma-4-26b-a4b-it:free">Gemma 4 26B A4B IT (권장, 무료)</option>
+              <option value="google/gemma-4-26b-a4b-it">Gemma 4 26B A4B IT (권장)</option>
+              <option value="~google/gemini-flash-latest">Gemini Flash Latest</option>
+              <option value="~anthropic/claude-haiku-latest">Claude Haiku Latest</option>
+              <option value="~openai/gpt-mini-latest">OpenAI GPT Mini Latest</option>
+              <option value="~moonshotai/kimi-latest">MoonshotAI Kimi Latest</option>
+              <option value="inception/mercury-2">Inception Mercury 2</option>
+              <option value="meta-llama/llama-4-scout">Meta LLaMA 4 Scout</option>
+              <option value="qwen/qwen3.5-35b-a3b">Qwen 3.5 35B A3B</option>
+              <option value="openai/gpt-oss-20b">OpenAI GPT OSS 20B</option>
+              <option value="openai/gpt-oss-20b:free">OpenAI GPT OSS 20B (무료)</option>
+            </select>
+            <p class="help-text">무료 모델은 OpenRouter 정책에 따라 하루 50회, 10달러 이상 충전 시 하루 1,000회까지 사용 가능합니다.</p>
+          </div>
+
+          <!-- 정보 박스 -->
+          <div class="info-box">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <circle cx="7.5" cy="7.5" r="6" />
+              <path d="M7.5 5v.5M7.5 8v3" />
+            </svg>
+            <p><strong>교주 게임 자동 감지:</strong> 참가자 중 교주(cultleader)가 있으면 확장된 컨텍스트 파일(<code style="font-family: var(--mono); font-size: 10px; color: var(--accent)">context_cult.txt</code>)이 자동으로 사용됩니다.</p>
+          </div>
+
+          <!-- 저장 버튼 -->
+          <button class="btn-save" id="save-btn" type="button">
+            <svg viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 13V4.5L4.5 2H13v11H2zM5 2v4h5V2M4 9h7" />
+            </svg>
+            설정 저장
+          </button>
+        </div>
+      </div>
+
+      <!-- 푸터 -->
+      <p class="footer">
+        Mafia42 Analyzer · 비공식 확장 프로그램<br />
+        <a href="https://mafia42.com" target="_blank">mafia42.com</a>과 무관합니다.<br />
+
+        이 확장 프로그램은 <a href="https://github.com/ATMnou/Mafia42ReplayAnalysis" target="_blank">오픈소스</a> 입니다.
+      </p>
+    </div>
+
+    <!-- 토스트 -->
+    <div id="toast">
+      <svg id="toast-icon" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></svg>
+      <span id="toast-msg"></span>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Mafia42 Analyzer",
+  "description": "AI를 이용하여 마피아42의 리플레이를 분석합니다.",
+  "version": "1.0",
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://mafia42.com/*", "https://o2zj8uijbj.execute-api.ap-northeast-2.amazonaws.com/*", "https://lwlexm3imq2lvqcst4kjr6322u0acknn.lambda-url.us-east-1.on.aws/*", "https://openrouter.ai/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://mafia42.com/history/*"],
+      "js": ["content_script.js"]
+    }
+  ],
+  "background": { "service_worker": "background.js" },
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/context.txt", "assets/context_cult.txt"],
+      "matches": ["https://mafia42.com/*"]
+    }
+  ]
+}

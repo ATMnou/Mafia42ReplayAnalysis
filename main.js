@@ -3,11 +3,12 @@ import * as cheerio from "cheerio";
 import { OpenAI } from "openai/client.js";
 import fs from "fs";
 import dotenv from "dotenv";
+import { log } from "console";
 
 dotenv.config();
 
 // 설정
-const mafiaUrl = "https://mafia42.com/history/kr/d8b443c3acb622e8af7c5e146a92ff50"; // readline 귀찮음
+const mafiaUrl = "https://mafia42.com/history/kr/ef95e750b13de4e1bcf8132e33d84b16"; // readline 귀찮음
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -188,7 +189,7 @@ if (result.success) {
       }
     });
   }
-
+  // console.log(logtext);
   console.log("로그 텍스트를 성공적으로 생성했습니다. 분석을 시작합니다...");
 
   // 모델 수정시 경고: Context가 매우 길기 때문에 비용을 고려해야 하지만, 파라미터가 너무 낮은 모델은 오히려 분석 품질이 떨어질 수 있습니다. 모델 선택에 신중을 기하세요.
@@ -196,10 +197,10 @@ if (result.success) {
   let contextText; // 컨텍스트 텍스트는 폴더에 포함됨
 
   if (cultmode) {
-    const cultContextFilePath = "./context_cult.txt"; // 교주 모드 지원을 위한 확장된 컨텍스트 파일 (15,528자)
+    const cultContextFilePath = "./context_cult.txt"; // 교주 모드 지원을 위한 확장된 컨텍스트 파일 (16,244자)
     contextText = fs.readFileSync(cultContextFilePath, "utf-8");
   } else {
-    const contextFilePath = "./context.txt"; // 8인(랭크 게임) 최적화 컨텍스트 파일 (14,351자)
+    const contextFilePath = "./context.txt"; // 8인(랭크 게임) 최적화 컨텍스트 파일 (15,103자)
     contextText = fs.readFileSync(contextFilePath, "utf-8");
   }
 
