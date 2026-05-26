@@ -13,7 +13,7 @@
 ## 준비 사항 (확장 프로그램 버전)
 
 - Chrome 또는 Chromium 기반 브라우저
-- OpenAI 호환 API 키
+- OpenRouter API 키
 
 ## 준비 사항 (CLI 버전)
 
