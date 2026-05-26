@@ -18,7 +18,7 @@ const AWS_ENDPOINTS = {
 };
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "google/gemma-3-27b-it";
+const DEFAULT_MODEL = "google/gemma-4-26b-a4b-it:free";
 
 // ══════════════════════════════════════════════
 //  메시지 라우터
@@ -241,7 +241,7 @@ async function loadContext(cultMode) {
 //  5단계: OpenRouter AI 분석
 // ══════════════════════════════════════════════
 
-async function analyzeWithAI(logText, contextText, apiKey) {
+async function analyzeWithAI(logText, contextText, apiKey, model) {
   const res = await fetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
@@ -251,7 +251,7 @@ async function analyzeWithAI(logText, contextText, apiKey) {
       "X-Title": "Mafia42 Replay Analyzer",
     },
     body: JSON.stringify({
-      model: MODEL,
+      model,
       messages: [
         {
           role: "user",
@@ -285,10 +285,12 @@ Respond in Korean. Do not include any meta phrases or speculative language.`,
 
 async function handleAnalyze(replayUrl, tabId) {
   // ── API 키 확인 ────────────────────────────
-  const { openrouterKey } = await chrome.storage.sync.get("openrouterKey");
+  const { openrouterKey, selectedModel } = await chrome.storage.sync.get(["openrouterKey", "selectedModel"]);
   if (!openrouterKey) {
     return { success: false, noKey: true, error: "API 키가 설정되지 않았습니다." };
   }
+
+  const model = selectedModel || DEFAULT_MODEL;
 
   // ── URL 파싱 ───────────────────────────────
   const { lang, roomId } = parseReplayUrl(replayUrl);
@@ -306,7 +308,7 @@ async function handleAnalyze(replayUrl, tabId) {
   // ── Step 2: AI 분석 요청 ───────────────────
   sendStep(tabId, 2);
   const contextText = await loadContext(cultMode);
-  const analysisText = await analyzeWithAI(logText, contextText, openrouterKey);
+  const analysisText = await analyzeWithAI(logText, contextText, openrouterKey, model);
 
   // ── Step 3: 결과 처리 ─────────────────────
   sendStep(tabId, 3);
